@@ -1,0 +1,28 @@
+{
+  "name": "imc-project",
+  "version": "1.0.0",
+  "description": "Projeto de cálculo de IMC com API Node.js e frontend",
+  "scripts": {
+    "start": "node api/server.js",
+    "dev": "nodemon api/server.js",
+    "test:unit": "jest tests/unit --coverage",
+    "test:functional": "jest tests/functional --testTimeout=30000",
+    "test": "npm run test:unit && npm run test:functional",
+    "test:ci": "jest --coverage --runInBand"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.18.2"
+  },
+  "devDependencies": {
+    "jest": "^29.7.0",
+    "nodemon": "^3.0.2",
+    "supertest": "^6.3.4"
+  },
+  "jest": {
+    "testEnvironment": "node",
+    "collectCoverageFrom": [
+      "api/**/*.js"
+    ]
+  }
+}

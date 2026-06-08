@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Calculadora de IMC</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f0f0f0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      margin: 0;
+    }
+
+    .card {
+      background: white;
+      padding: 2rem;
+      border-radius: 12px;
+      width: 320px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+
+    h1 {
+      font-size: 1.4rem;
+      margin-bottom: 1.5rem;
+      color: #222;
+    }
+
+    label {
+      display: block;
+      font-size: 0.9rem;
+      color: #444;
+      margin-bottom: 0.3rem;
+    }
+
+    input {
+      width: 100%;
+      padding: 0.7rem;
+      font-size: 1rem;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      margin-bottom: 1rem;
+      box-sizing: border-box;
+    }
+
+    button {
+      width: 100%;
+      padding: 0.8rem;
+      background: #f5a623;
+      color: white;
+      font-size: 1rem;
+      font-weight: bold;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background: #e09510;
+    }
+
+    #resultado {
+      margin-top: 1.5rem;
+      padding: 1rem;
+      background: #f9f9f9;
+      border-radius: 8px;
+      text-align: center;
+      display: none;
+    }
+
+    #resultado .imc {
+      font-size: 2rem;
+      font-weight: bold;
+      color: #222;
+    }
+
+    #resultado .classificacao {
+      font-size: 1rem;
+      color: #555;
+      margin-top: 0.3rem;
+    }
+
+    #erro {
+      margin-top: 1rem;
+      color: red;
+      font-size: 0.9rem;
+      display: none;
+    }
+
+    .autor {
+      text-align: center;
+      margin-top: 1.5rem;
+      font-size: 0.8rem;
+      color: #aaa;
+    }
+  </style>
+</head>
+<body>
+
+<div class="card">
+  <h1>Calcule IMC</h1>
+
+  <label>Altura</label>
+  <input type="number" id="altura" placeholder="Em metro(s)" step="0.01" />
+
+  <label>Peso</label>
+  <input type="number" id="peso" placeholder="Em quilograma(s)" step="0.1" />
+
+  <button onclick="calcular()">Calcular</button>
+
+  <div id="erro"></div>
+
+  <div id="resultado">
+    <div class="imc" id="imcValor"></div>
+    <div class="classificacao" id="imcClassif"></div>
+  </div>
+</div>
+
+<script>
+  async function calcular() {
+    const altura = document.getElementById('altura').value;
+    const peso = document.getElementById('peso').value;
+    const erroEl = document.getElementById('erro');
+    const resultadoEl = document.getElementById('resultado');
+
+    erroEl.style.display = 'none';
+    resultadoEl.style.display = 'none';
+
+    if (!altura || !peso) {
+      erroEl.textContent = 'Preencha altura e peso.';
+      erroEl.style.display = 'block';
+      return;
+    }
+
+    try {
+      const res = await fetch('/api/imc', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ peso: parseFloat(peso), altura: parseFloat(altura) })
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        erroEl.textContent = data.erro;
+        erroEl.style.display = 'block';
+        return;
+      }
+
+      document.getElementById('imcValor').textContent = 'IMC: ' + data.imc;
+      document.getElementById('imcClassif').textContent = data.classificacao;
+      resultadoEl.style.display = 'block';
+
+    } catch (e) {
+      erroEl.textContent = 'Erro ao conectar com a API.';
+      erroEl.style.display = 'block';
+    }
+  }
+
+  document.querySelectorAll('input').forEach(el => {
+    el.addEventListener('keydown', e => { if (e.key === 'Enter') calcular(); });
+  });
+</script>
+
+</body>
+</html>
